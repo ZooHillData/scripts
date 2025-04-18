@@ -1,8 +1,8 @@
 
 START SPECIFICATION:
 ---
-description: Use for documenting script management systems that handle shell script discovery, installation tracking, and alias management across repositories
-globs: script-manager/*,add-to-rc.bash
+description: Overview documentation for script management systems that handle installation tracking and alias management within shell environments
+globs: script-manager/get-scripts.bash,add-to-rc.bash
 alwaysApply: false
 ---
 
@@ -18,32 +18,41 @@ alwaysApply: false
 - Explain your OBSERVATIONS clearly, then provide REASONING to identify the exact issue. Add console logs when needed to gather more information.
 
 
-The system consists of two primary business components that manage shell script organization and accessibility:
+The system implements a script management solution with two core components:
 
-## Script Management System (Importance: 85)
-Core logic for script discovery and status tracking:
-- Differentiates installed vs uninstalled scripts through .zshrc alias verification 
-- Implements hierarchical categorization based on directory structure
-- Enforces 2-level directory depth limit for script organization
-- Provides selective visibility of uninstalled scripts via filtering
+## Installation Status Management (Importance: 85)
+`script-manager/get-scripts.bash`
+- Script discovery and status tracking system
+- Filters specific utility scripts from processing workflow
+- Determines installation state through .zshrc alias presence
+- Hierarchical organization of scripts by directory
+- Configurable visibility rules for uninstalled scripts and path display
 
-## Shell Environment Manager (Importance: 80)
-Handles script availability and alias management:
-- Creates unique shell aliases for repository scripts
-- Maintains alias consistency through collision detection
-- Preserves script hierarchy in command naming
-- Ensures repository-wide script accessibility through absolute paths
+## Alias Management System (Importance: 90)
+`add-to-rc.bash`
+- Managed section approach for shell RC files
+- Controlled boundary system using explicit markers
+- Script-to-alias mapping preserving repository structure
+- Conflict prevention through duplicate detection
+- Single source of truth enforcement for alias definitions
 
-## Integration Points (Importance: 75)
-The components work together to:
-- Track script installation status across the repository
-- Maintain organized script categories based on location
-- Provide consistent access through standardized aliases
-- Prevent duplicate/conflicting command definitions
+The business logic centers around maintaining a controlled environment for script installations and aliases, with clear ownership boundaries and automated management workflows. The components work together to provide:
 
-Key paths:
-- script-manager/get-scripts.bash: Script inventory and status tracking
-- add-to-rc.bash: Shell environment configuration and alias management
+1. Script Discovery
+- Repository scanning with controlled depth
+- Selective processing rules
+- Directory-based organization
+
+2. Installation Tracking
+- Status determination through alias presence
+- Configurable visibility policies
+- Hierarchical status reporting
+
+3. Alias Management
+- Automated alias generation
+- Conflict prevention
+- Managed section isolation
+- Change management policies
 
 $END$
 END SPECIFICATION

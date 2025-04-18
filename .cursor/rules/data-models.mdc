@@ -1,37 +1,33 @@
 ---
-description: Comprehensive data structure documentation for script management and organization system
-globs: **/script-manager/*.bash,**/script-manager/*.sh
+description: Specification for script collection and management data structures in a shell environment
+globs: **/script-manager/*.bash,**/.zshrc,**/.bashrc
 alwaysApply: false
 ---
 
 
 # data-models
 
-Key Data Structures:
+Script Collection Model:
+- Two-level hierarchical organization of shell scripts within repository
+- Directory-based grouping for organizational purposes
+- Special exclusion rules for utility scripts (e.g., "add-to-rc.bash")
 
-1. Script Collection Organization
-- Two-level hierarchical structure for script storage
-- Maximum directory depth: 2 levels
-- Root scripts categorized under "root" label
-- Subdirectory names serve as category identifiers
+Installation Status Model:
+- Binary state tracking (installed/uninstalled) based on alias presence
+- Managed section markers in RC files define installation boundaries
+- Reference system using begin/end delimiters ("=== BEGIN/END: Script Management System Aliases ===")
 
-2. Script Installation Status Model
-- Binary state tracking (installed/uninstalled)
-- Installation status determined by alias presence in .zshrc
-- Reference mapping between script paths and shell aliases
+Script Reference Structure:
+- Flat alias namespace derived from script hierarchy
+- Script-to-alias mapping preserves original repository structure
+- Extension stripping (.bash) for clean alias names
 
-3. Script Reference Model
-- Absolute paths used for script references
-- Base names (without extensions) used for alias generation
-- Directory structure preserved in alias path mapping
+Managed Section Model:
+- Isolated block within RC files for automated management
+- Single source of truth enforcement for alias definitions
+- Conflict detection for duplicate alias declarations
 
-4. Script Categories
-- Directory-based categorization
-- Root level: "root" category
-- Level 1: Named by containing directory
-- Level 2: Named by subdirectory
-
-Importance Score: 85
-Rationale: Core data organization model that enables script discovery, categorization and status tracking
+Importance Score: 95
+Rationale: Core data model defining script organization, reference system, and state tracking that directly enables the primary business functionality
 
 $END$

@@ -1,42 +1,63 @@
 ---
-description: Documentation for script registration, listing, and management operations in shell environments
-globs: **/script-manager/*.bash,**/script-manager/*.sh,**/*.rc
+description: Technical documentation for script registration, listing, and management functionality
+globs: **/script-manager/*.bash,**/add-to-rc.bash
 alwaysApply: false
 ---
 
 
 # script-operations
 
-## Core Script Management System
-Importance Score: 85
+## Core Script Management System (Importance: 95)
 
-The script management system implements hierarchical organization and installation tracking of shell scripts within a repository structure:
+The script management system implements business-critical operations for managing shell aliases through two key components:
 
-1. Installation Status Tracking
-- Determines script installation state by verifying alias presence in .zshrc
-- Maintains distinction between installed/uninstalled scripts
-- Implements configurable visibility of uninstalled scripts via --include-uninstalled flag
+1. Script Installation Status Checker (`script-manager/get-scripts.bash`)
+- Enforces organizational policy through selective script filtering
+- Reports script installation state through .zshrc alias verification 
+- Groups scripts by directory for hierarchical organization
+- Provides configurable visibility policies for installed/uninstalled scripts
 
-2. Hierarchical Organization
-- Groups scripts by directory location up to 2 levels deep
-- Root-level scripts receive "root" category designation
-- Enforces maximum directory depth constraint
+2. Script Registration System (`add-to-rc.bash`)
+- Creates managed sections in RC files with explicit boundary markers
+- Implements single-source-of-truth policy for alias definitions
+- Enforces script discovery within 2-level depth hierarchy
+- Maintains alias namespace isolation through extension stripping
 
-## Shell Environment Integration
-Importance Score: 90
+## Business Rules (Importance: 85)
 
-Automated shell environment configuration system:
+1. Script Filtering:
+- Excludes utility scripts ("add-to-rc.bash") from processing
+- Limits script discovery to .bash extension
+- Maintains 2-level directory depth restriction
 
-1. Alias Generation Logic
-- Creates unique shell aliases for discovered .sh scripts
-- Preserves script directory structure in alias paths
-- Uses script base names (without extensions) as alias commands
-- Excludes add-to-rc.sh from alias creation process
+2. Installation Status:
+- Determines through presence of alias definitions
+- Groups by directory structure
+- Configurable display of uninstalled scripts
 
-2. Installation Management Rules  
-- Maintains alias uniqueness through duplicate detection
-- Uses absolute paths for location-independent script execution
-- Implements idempotent alias registration
-- Limits script discovery to repository depth of 2 directories
+3. Alias Management:
+- Preserves existing alias definitions
+- Warns about duplicates
+- Maintains clear section boundaries
+- Requires shell restart notification
+
+## Domain Model (Importance: 90)
+
+The system implements a specialized domain model for script management:
+
+1. Managed Section Concept
+- Explicit begin/end markers
+- Automated management boundaries
+- Change isolation policy
+
+2. Script-to-Alias Mapping
+- Repository structure preservation
+- Flat alias namespace
+- Extension stripping convention
+
+3. Installation Status Model
+- Binary installed/uninstalled state
+- Directory-based grouping
+- Configurable visibility rules
 
 $END$
