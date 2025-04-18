@@ -1,0 +1,22 @@
+---
+description: We are making a commit message
+globs: 
+alwaysApply: false
+---
+In all commits that have more than one change, do a commit message that has a summary and then bulletpoint details below
+
+```
+Summary of overarching changes or biggest change:
+
+- Detail 1
+- Detail 2
+```
+
+For example
+```
+Add Gigamind AI:
+
+- Rename .sh to .bash for gigamind compatability
+- Change all .bash references
+- Add comments around aliases rc file to separate from user's other code
+```

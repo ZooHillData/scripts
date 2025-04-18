@@ -1,0 +1,4 @@
+# Claude MCP file
+.mcp.json
+# Cursor MCP file
+.cursor/mcp.json

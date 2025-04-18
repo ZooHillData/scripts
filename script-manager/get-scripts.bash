@@ -31,8 +31,8 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Find all shell scripts in the repository (excluding add-to-rc.sh)
-SCRIPTS=$(find . -maxdepth 2 -type f -name "*.sh" | grep -v "add-to-rc.sh" | sort)
+# Find all shell scripts in the repository (excluding add-to-rc.bash)
+SCRIPTS=$(find . -maxdepth 2 -type f -name "*.bash" | grep -v "add-to-rc.bash" | sort)
 
 # Process scripts by directory
 current_dir=""
@@ -50,7 +50,7 @@ while IFS= read -r script; do
     fi
     
     # Get script name without extension
-    script_name=$(basename "$script" .sh)
+    script_name=$(basename "$script" .bash)
     
     # Check if script is installed
     if grep -q "alias $script_name=" "$RC_FILE"; then

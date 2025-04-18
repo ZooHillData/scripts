@@ -1,0 +1,14 @@
+[
+  {
+    "fileName": "main-overview.mdc",
+    "description": "Complete system overview documenting the ScriptManager class, its purpose, and its role in script management"
+  },
+  {
+    "fileName": "data-models.mdc",
+    "description": "Documentation of the internal script collection data structure, including how scripts are stored and referenced"
+  },
+  {
+    "fileName": "script-operations.mdc",
+    "description": "Detailed documentation of script registration, listing, and management operations including algorithms and implementation details"
+  }
+]

@@ -6,7 +6,7 @@ This repository contains a collection of shell scripts and a management system t
 
 1. Install the scripts (from the root of this repository):
    ```bash
-   ./add-to-rc.sh
+   ./add-to-rc.bash
    ```
 
 2. Source your shell configuration:
@@ -21,15 +21,15 @@ This repository contains a collection of shell scripts and a management system t
 
 ## Script Management
 
-### Installation (`add-to-rc.sh`)
+### Installation (`add-to-rc.bash`)
 
-The `add-to-rc.sh` script:
-- Finds all `.sh` files in the repository (top level and one directory deep)
+The `add-to-rc.bash` script:
+- Finds all `.bash` files in the repository (top level and one directory deep)
 - Creates aliases for each script in your shell configuration file
-- Uses the script's basename as the alias (e.g., `deployment/script.sh` becomes `script`)
+- Uses the script's basename as the alias (e.g., `deployment/script.bash` becomes `script`)
 - Defaults to `~/.zshrc` but can use a different file:
   ```bash
-  ./add-to-rc.sh ~/.bashrc
+  ./add-to-rc.bash ~/.bashrc
   ```
 
 ### List available scripts (`get-scripts`)
@@ -46,7 +46,7 @@ The `get-scripts` command shows all available scripts with their installation st
 
 Scripts are organized in the repository with the following assumptions:
 - Scripts are either at the root level or one directory deep
-- Each script's alias is based on its filename (without the `.sh` extension)
+- Each script's alias is based on its filename (without the `.bash` extension)
 - Scripts in subdirectories are grouped by their directory name
 
 ## Example Usage
@@ -55,7 +55,7 @@ Scripts are organized in the repository with the following assumptions:
 
 ```bash
 # Install all scripts
-./add-to-rc.sh
+./add-to-rc.bash
 
 # List installed scripts
 get-scripts

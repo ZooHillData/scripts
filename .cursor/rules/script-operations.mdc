@@ -1,0 +1,42 @@
+---
+description: Documentation for script registration, listing, and management operations in shell environments
+globs: **/script-manager/*.bash,**/script-manager/*.sh,**/*.rc
+alwaysApply: false
+---
+
+
+# script-operations
+
+## Core Script Management System
+Importance Score: 85
+
+The script management system implements hierarchical organization and installation tracking of shell scripts within a repository structure:
+
+1. Installation Status Tracking
+- Determines script installation state by verifying alias presence in .zshrc
+- Maintains distinction between installed/uninstalled scripts
+- Implements configurable visibility of uninstalled scripts via --include-uninstalled flag
+
+2. Hierarchical Organization
+- Groups scripts by directory location up to 2 levels deep
+- Root-level scripts receive "root" category designation
+- Enforces maximum directory depth constraint
+
+## Shell Environment Integration
+Importance Score: 90
+
+Automated shell environment configuration system:
+
+1. Alias Generation Logic
+- Creates unique shell aliases for discovered .sh scripts
+- Preserves script directory structure in alias paths
+- Uses script base names (without extensions) as alias commands
+- Excludes add-to-rc.sh from alias creation process
+
+2. Installation Management Rules  
+- Maintains alias uniqueness through duplicate detection
+- Uses absolute paths for location-independent script execution
+- Implements idempotent alias registration
+- Limits script discovery to repository depth of 2 directories
+
+$END$

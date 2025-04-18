@@ -1,0 +1,37 @@
+---
+description: Comprehensive data structure documentation for script management and organization system
+globs: **/script-manager/*.bash,**/script-manager/*.sh
+alwaysApply: false
+---
+
+
+# data-models
+
+Key Data Structures:
+
+1. Script Collection Organization
+- Two-level hierarchical structure for script storage
+- Maximum directory depth: 2 levels
+- Root scripts categorized under "root" label
+- Subdirectory names serve as category identifiers
+
+2. Script Installation Status Model
+- Binary state tracking (installed/uninstalled)
+- Installation status determined by alias presence in .zshrc
+- Reference mapping between script paths and shell aliases
+
+3. Script Reference Model
+- Absolute paths used for script references
+- Base names (without extensions) used for alias generation
+- Directory structure preserved in alias path mapping
+
+4. Script Categories
+- Directory-based categorization
+- Root level: "root" category
+- Level 1: Named by containing directory
+- Level 2: Named by subdirectory
+
+Importance Score: 85
+Rationale: Core data organization model that enables script discovery, categorization and status tracking
+
+$END$
