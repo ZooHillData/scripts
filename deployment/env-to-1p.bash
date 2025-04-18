@@ -2,10 +2,11 @@
 
 # Function to display usage information
 usage() {
-    echo "Usage: $0 --vault <vault_name> --item <item_id> [--env-file <path>]"
+    echo "Usage: $0 --vault <vault_name> --item <item_id> [--env-file <path>] [--remove]"
     echo "  --vault     : Name of the 1Password vault"
     echo "  --item      : ID of the item in the vault"
     echo "  --env-file  : Path to the .env file (default: .env)"
+    echo "  --remove    : Automatically remove keys that are not in the env file"
     exit 1
 }
 
@@ -13,6 +14,7 @@ usage() {
 VAULT=""
 ITEM=""
 ENV_FILE=".env"
+AUTO_REMOVE=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -27,6 +29,10 @@ while [[ $# -gt 0 ]]; do
         --env-file)
             ENV_FILE="$2"
             shift 2
+            ;;
+        --remove)
+            AUTO_REMOVE=true
+            shift
             ;;
         *)
             echo "Unknown option: $1"
@@ -113,38 +119,145 @@ check_and_confirm_changes() {
             exit 1
         fi
     else
-        echo "Item '$ITEM' exists. The following changes will be made:"
+        echo "Item '$ITEM' exists. Analyzing changes..."
         
-        # Get existing fields
-        existing_fields=$(op item get "$ITEM" --vault "$VAULT" --format json | jq -r '.fields[] | select(.type == "CONCEALED") | .label')
+        # Create temporary files for storing key-value pairs
+        tmp_existing=$(mktemp)
+        tmp_new=$(mktemp)
+        tmp_seen=$(mktemp)
         
-        # Compare with new fields
+        # Get existing fields and values, excluding built-in fields
+        op item get "$ITEM" --vault "$VAULT" --format json --reveal | \
+            jq -r '.fields[] | select(.label != "notesPlain" and .label != "") | "\(.label)=\(.value // "")"' > "$tmp_existing"
+        
+        # Debug output
+        echo "Current values in 1Password:"
+        cat "$tmp_existing"
+        echo
+        echo "New values from $ENV_FILE:"
+        cat "$ENV_FILE"
+        echo
+        
+        # Read new values into temp file, ensuring unique keys
         while IFS= read -r line || [[ -n "$line" ]]; do
             if [[ $line =~ ^[^#].*=.* ]]; then
                 key=$(echo "$line" | cut -d '=' -f 1)
-                if echo "$existing_fields" | grep -q "^$key$"; then
-                    echo "- $key (will be updated)"
-                else
-                    echo "- $key (will be added)"
+                if ! grep -q "^$key$" "$tmp_seen" 2>/dev/null; then
+                    echo "$line" >> "$tmp_new"
+                    echo "$key" >> "$tmp_seen"
                 fi
             fi
         done < "$ENV_FILE"
         
-        read -p "Proceed with update? (y/n) " -n 1 -r
+        # Track changes
+        to_update=""
+        to_add=""
+        to_remove=""
+        
+        # Check for updates and additions
+        while IFS='=' read -r key value; do
+            if [ -n "$key" ]; then
+                existing_line=$(grep "^$key=" "$tmp_existing" || true)
+                if [ -n "$existing_line" ]; then
+                    existing_value=$(echo "$existing_line" | cut -d'=' -f2-)
+                    if [ "$existing_value" != "$value" ]; then
+                        to_update="$to_update $key"
+                    fi
+                else
+                    to_add="$to_add $key"
+                fi
+            fi
+        done < "$tmp_new"
+        
+        # Check for removals
+        while IFS='=' read -r key value; do
+            if [ -n "$key" ]; then
+                if ! grep -q "^$key=" "$tmp_new"; then
+                    to_remove="$to_remove $key"
+                fi
+            fi
+        done < "$tmp_existing"
+        
+        # Show changes
+        if [ -z "$to_update" ] && [ -z "$to_add" ] && [ -z "$to_remove" ]; then
+            echo "No changes detected."
+            rm -f "$tmp_existing" "$tmp_new" "$tmp_seen"
+            exit 0
+        fi
+        
+        echo "The following changes will be made:"
+        
+        # Show updates
+        for key in $to_update; do
+            old_value=$(grep "^$key=" "$tmp_existing" | cut -d'=' -f2-)
+            new_value=$(grep "^$key=" "$tmp_new" | cut -d'=' -f2-)
+            echo "- $key (will be updated from '$old_value' to '$new_value')"
+        done
+        
+        # Show additions
+        for key in $to_add; do
+            value=$(grep "^$key=" "$tmp_new" | cut -d'=' -f2-)
+            echo "- $key (will be added with value '$value')"
+        done
+        
+        # Show removals
+        if [ -n "$to_remove" ]; then
+            echo "The following keys will be removed:"
+            for key in $to_remove; do
+                value=$(grep "^$key=" "$tmp_existing" | cut -d'=' -f2-)
+                echo "- $key (current value: '$value')"
+            done
+            
+            if [ "$AUTO_REMOVE" = false ]; then
+                read -p "Do you want to remove these keys? (y/n) " -n 1 -r
+                echo
+                if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+                    echo "Skipping key removal"
+                    to_remove=""
+                fi
+            fi
+        fi
+        
+        read -p "Proceed with these changes? (y/n) " -n 1 -r
         echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
-            # Update all fields
-            while IFS= read -r line || [[ -n "$line" ]]; do
-                if [[ $line =~ ^[^#].*=.* ]]; then
-                    key=$(echo "$line" | cut -d '=' -f 1)
-                    value=$(echo "$line" | cut -d '=' -f 2-)
-                    op item edit "$ITEM" --vault "$VAULT" "$key[text]=$value"
+            # Apply removals first
+            for key in $to_remove; do
+                if [ -n "$key" ]; then
+                    echo "Removing $key..."
+                    op item edit "$ITEM" --vault "$VAULT" "$key[delete]" --reveal
                 fi
-            done < "$ENV_FILE"
+            done
+            
+            # Then apply updates and additions
+            if [ -n "$to_update" ] || [ -n "$to_add" ]; then
+                # Create a temporary file for the field updates
+                tmp_updates=$(mktemp)
+                
+                # Build the update command arguments
+                for key in $to_update $to_add; do
+                    if [ -n "$key" ]; then
+                        value=$(grep "^$key=" "$tmp_new" | cut -d'=' -f2-)
+                        echo "$key[text]=$value" >> "$tmp_updates"
+                    fi
+                done
+                
+                # Apply all updates in a single command
+                if [ -s "$tmp_updates" ]; then
+                    echo "Applying updates..."
+                    op item edit "$ITEM" --vault "$VAULT" $(cat "$tmp_updates") --reveal
+                fi
+                
+                rm -f "$tmp_updates"
+            fi
         else
             echo "Operation cancelled"
+            rm -f "$tmp_existing" "$tmp_new" "$tmp_seen"
             exit 1
         fi
+        
+        # Cleanup temp files
+        rm -f "$tmp_existing" "$tmp_new" "$tmp_seen"
     fi
 }
 
