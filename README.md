@@ -163,3 +163,152 @@ netlify link --name $site_name
 ### Push Env from 1Password to Netlify (and build)
 
 ```bash
+
+```
+
+### Project Management
+
+#### add-issue
+
+```bash
+# Create GitHub issues with optional charge code creation
+add-issue --repo REPO [--org ORG] --title TITLE [--description] [--active] [charge code options]
+
+# Required arguments:
+# --repo         : Repository name
+# --title        : Issue title
+
+# Optional arguments:
+# --org          : Organization name (default: zoohilldata)
+# --description  : Enter description interactively
+# --active       : Add issue to Active project
+
+# Charge code integration:
+# If --client is provided, a charge code will be created after the issue
+# --client TEXT        : Client name (triggers charge code creation)
+# --contract TEXT      : Contract identifier (required with --client)
+# --project TEXT       : Project name (default: '-')
+# --project-item TEXT  : Project item (default: '-')
+# --authorized NUMBER  : Authorized hours for the charge code
+
+# Examples:
+# Create a simple issue
+add-issue --repo scripts --title "Bug Fix" --description
+
+# Create an issue and add to Active project
+add-issue --repo scripts --title "New Feature" --active
+
+# Create an issue with charge code
+add-issue --repo scripts --title "New Feature" --description \
+  --client ACME --contract CT123
+
+# Create an issue with full charge code details
+add-issue --repo scripts --title "Project Setup" --description \
+  --client ACME \
+  --contract CT123 \
+  --project PRJ1 \
+  --project-item ITEM1 \
+  --authorized 40
+
+# Description Input:
+# When --description is used, you'll be prompted to enter a multi-line description
+# - Type or paste your description
+# - Use markdown formatting if desired
+# - Press Ctrl+D when done
+```
+
+### Vista
+
+Scripts for managing Vista charge codes and contracts.
+
+#### add-code
+
+```bash
+# Add a new charge code to the vista.charge_codes table
+add-code [options]
+
+# Required arguments:
+# --client TEXT        : Client name
+# --contract TEXT      : Contract identifier
+
+# Optional arguments:
+# --project TEXT       : Project name (default: '-')
+# --project-item TEXT  : Project item (default: '-')
+# --authorized NUMBER  : Authorized hours for the charge code
+
+# Examples:
+# Add basic charge code
+add-code --client ACME --contract CT123
+
+# Add charge code with project details
+add-code --client ACME --contract CT123 --project PRJ1 --project-item ITEM1
+
+# Add charge code with authorized hours
+add-code --client ACME --contract CT123 --authorized 40
+
+# Note:
+# - Client/contract will be automatically created if they don't exist
+# - Charge code format: <CLIENT_PREFIX>:<CONTRACT>:<PROJECT>:<PROJECT_ITEM>
+# - All inputs are automatically converted to uppercase
+```
+
+#### add-contract
+
+```bash
+# Add a new contract to the vista.contracts table
+add-contract --client CLIENT --contract CONTRACT
+
+# Required arguments:
+# --client TEXT    : Client name
+# --contract TEXT  : Contract identifier
+
+# Example:
+add-contract --client ACME --contract CT123
+
+# Note:
+# - All inputs are automatically converted to uppercase
+# - Used automatically by add-code when needed
+```
+
+#### close-code
+
+```bash
+# Close a charge code in the vista.charge_codes table
+close-code --code CHARGE_CODE
+
+# Required arguments:
+# --code TEXT  : The charge code to close
+
+# Example:
+close-code --code "ACM:CT123:PRJ1:ITEM1"
+
+# Note:
+# - Sets the closed_date to the current date
+# - Charge code must exist in the system
+```
+
+#### delete-codes
+
+```bash
+# Delete charge codes from the vista.charge_codes table using regex patterns
+delete-codes --code PATTERN
+
+# Required arguments:
+# --code TEXT  : Regex pattern to match charge codes
+
+# Examples:
+# Delete all codes for a client
+delete-codes --code 'ACME:.*'
+
+# Delete codes for specific contract
+delete-codes --code 'ACME:CT123:.*'
+
+# Delete codes for specific project
+delete-codes --code 'ACME:CT123:PRJ1:.*'
+
+# Note:
+# - Pattern is automatically converted to uppercase
+# - Matches are shown for confirmation before deletion
+# - Use with caution as deletion cannot be undone
+# - Uses PostgreSQL regex syntax
+```
