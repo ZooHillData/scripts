@@ -6,6 +6,7 @@ CONTRACT=""
 PROJECT="-"
 PROJECT_ITEM="-"
 AUTHORIZED_HOURS=""
+GH_URL=""
 
 # Function to show usage
 show_usage() {
@@ -21,6 +22,7 @@ show_usage() {
     echo "  --project TEXT       Project name (default: '-')"
     echo "  --project-item TEXT  Project item (default: '-')"
     echo "  --authorized NUMBER  Authorized hours for the charge code"
+    echo "  --gh-url TEXT       GitHub URL associated with the charge code"
     echo "  --help, -h          Show this help message"
     echo ""
     echo "Example:"
@@ -49,6 +51,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --authorized)
             AUTHORIZED_HOURS="$2"
+            shift 2
+            ;;
+        --gh-url)
+            GH_URL="$2"
             shift 2
             ;;
         --help|-h)
@@ -119,11 +125,15 @@ fi
 # Construct the charge code using already uppercase values
 CHARGE_CODE="${CLIENT_PREFIX}:${CONTRACT_UPPER}:${PROJECT_UPPER}:${PROJECT_ITEM_UPPER}"
 
-# Prepare SQL command with optional authorized_hours
-if [ -z "$AUTHORIZED_HOURS" ]; then
+# Prepare SQL command with optional authorized_hours and gh_url
+if [ -z "$AUTHORIZED_HOURS" ] && [ -z "$GH_URL" ]; then
     SQL_COMMAND="INSERT INTO vista.charge_codes(charge_code, client, contract, project, project_item, created_date) VALUES ('${CHARGE_CODE}', '${CLIENT_UPPER}', '${CONTRACT_UPPER}', '${PROJECT_UPPER}', '${PROJECT_ITEM_UPPER}', CURRENT_DATE)"
-else
+elif [ ! -z "$AUTHORIZED_HOURS" ] && [ -z "$GH_URL" ]; then
     SQL_COMMAND="INSERT INTO vista.charge_codes(charge_code, client, contract, project, project_item, created_date, authorized_hours) VALUES ('${CHARGE_CODE}', '${CLIENT_UPPER}', '${CONTRACT_UPPER}', '${PROJECT_UPPER}', '${PROJECT_ITEM_UPPER}', CURRENT_DATE, ${AUTHORIZED_HOURS})"
+elif [ -z "$AUTHORIZED_HOURS" ] && [ ! -z "$GH_URL" ]; then
+    SQL_COMMAND="INSERT INTO vista.charge_codes(charge_code, client, contract, project, project_item, created_date, gh_link) VALUES ('${CHARGE_CODE}', '${CLIENT_UPPER}', '${CONTRACT_UPPER}', '${PROJECT_UPPER}', '${PROJECT_ITEM_UPPER}', CURRENT_DATE, '${GH_URL}')"
+else
+    SQL_COMMAND="INSERT INTO vista.charge_codes(charge_code, client, contract, project, project_item, created_date, authorized_hours, gh_link) VALUES ('${CHARGE_CODE}', '${CLIENT_UPPER}', '${CONTRACT_UPPER}', '${PROJECT_UPPER}', '${PROJECT_ITEM_UPPER}', CURRENT_DATE, ${AUTHORIZED_HOURS}, '${GH_URL}')"
 fi
 
 echo "Executing SQL: ${SQL_COMMAND}"

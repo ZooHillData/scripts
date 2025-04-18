@@ -135,15 +135,14 @@ else
     ISSUE_URL=$(gh issue create --repo "$ORG/$REPO" --title "$TITLE" --body "")
 fi
 
-# Extract issue number from URL
-ISSUE_NUM=$(echo "$ISSUE_URL" | grep -o '[0-9]*$')
-
 # Check if issue creation was successful
-if [[ -n "$ISSUE_NUM" ]]; then
+if [[ -n "$ISSUE_URL" ]]; then
     echo "✓ Issue created successfully"
     
-    # Add to Active project if specified
+    # Extract issue number from URL for project addition
+    ISSUE_NUM=$(echo "$ISSUE_URL" | grep -o '[0-9]*$')
     
+    # Add to Active project if specified
     if [[ "$ACTIVE" = true ]]; then
         echo "Adding issue to Active project..."
         if gh issue edit "$ISSUE_NUM" --repo "$ORG/$REPO" --add-project "Active"; then
@@ -157,7 +156,7 @@ if [[ -n "$ISSUE_NUM" ]]; then
     if [[ -n "$CLIENT" ]]; then
         echo
         echo "Creating charge code..."
-        CMD="./vista/add-code.bash --client '$CLIENT' --contract '$CONTRACT'"
+        CMD="./vista/add-code.bash --client '$CLIENT' --contract '$CONTRACT' --gh-url '$ISSUE_URL'"
         
         # Add optional arguments if they were provided
         if [[ "$PROJECT" != "-" ]]; then

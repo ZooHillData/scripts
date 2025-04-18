@@ -185,6 +185,7 @@ add-issue --repo REPO [--org ORG] --title TITLE [--description] [--active] [char
 
 # Charge code integration:
 # If --client is provided, a charge code will be created after the issue
+# The GitHub issue URL will be automatically linked to the charge code
 # --client TEXT        : Client name (triggers charge code creation)
 # --contract TEXT      : Contract identifier (required with --client)
 # --project TEXT       : Project name (default: '-')
@@ -235,13 +236,14 @@ add-code [options]
 # --project TEXT       : Project name (default: '-')
 # --project-item TEXT  : Project item (default: '-')
 # --authorized NUMBER  : Authorized hours for the charge code
+# --gh-url TEXT       : GitHub URL to associate with the charge code
 
 # Examples:
 # Add basic charge code
 add-code --client ACME --contract CT123
 
-# Add charge code with project details
-add-code --client ACME --contract CT123 --project PRJ1 --project-item ITEM1
+# Add charge code with project details and GitHub URL
+add-code --client ACME --contract CT123 --project PRJ1 --project-item ITEM1 --gh-url 'https://github.com/org/repo/issues/1'
 
 # Add charge code with authorized hours
 add-code --client ACME --contract CT123 --authorized 40
@@ -250,6 +252,7 @@ add-code --client ACME --contract CT123 --authorized 40
 # - Client/contract will be automatically created if they don't exist
 # - Charge code format: <CLIENT_PREFIX>:<CONTRACT>:<PROJECT>:<PROJECT_ITEM>
 # - All inputs are automatically converted to uppercase
+# - When used with add-issue, the GitHub URL is automatically linked
 ```
 
 #### add-contract
