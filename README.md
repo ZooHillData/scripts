@@ -273,21 +273,17 @@ add-contract --client ACME --contract CT123
 # - Used automatically by add-code when needed
 ```
 
-#### close-code
+#### close-codes
+
+Close charge codes by setting their closed_date to today's date.
 
 ```bash
-# Close a charge code in the vista.charge_codes table
-close-code --code CHARGE_CODE
+close-codes --code CHARGE_CODE
+```
 
-# Required arguments:
-# --code TEXT  : The charge code to close
-
-# Example:
-close-code --code "ACM:CT123:PRJ1:ITEM1"
-
-# Note:
-# - Sets the closed_date to the current date
-# - Charge code must exist in the system
+Example:
+```bash
+close-codes --code "ACM:CT123:PRJ1:ITEM1"
 ```
 
 #### delete-codes

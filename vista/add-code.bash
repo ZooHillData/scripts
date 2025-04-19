@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# Get the directory where this script is located
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
+
 # Default values
 CLIENT=""
 CONTRACT=""
@@ -101,25 +105,10 @@ if ! command -v op &> /dev/null; then
     exit 1
 fi
 
-# Check if the client/contract combination exists
-CHECK_SQL="SELECT EXISTS(SELECT 1 FROM vista.contracts WHERE client = '${CLIENT_UPPER}' AND contract = '${CONTRACT_UPPER}')"
-CONTRACT_EXISTS=$(psql $(op read op://zoo-shared-platform/env/DATABASE_URI) -tA -c "${CHECK_SQL}")
-
-if [ "$CONTRACT_EXISTS" = "f" ]; then
-    echo "Warning: The client/contract combination '${CLIENT_UPPER}/${CONTRACT_UPPER}' does not exist in vista.contracts"
-    read -p "Would you like to create it? (y/n) " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        # Use yes command to automatically answer the prompt
-        yes y | ./vista/add-contract.bash --client "${CLIENT_UPPER}" --contract "${CONTRACT_UPPER}"
-        if [ $? -ne 0 ]; then
-            echo "Error: Failed to create contract"
-            exit 1
-        fi
-    else
-        echo "Operation cancelled - cannot add charge code without an existing contract"
-        exit 1
-    fi
+# Create contract if it doesn't exist
+if ! psql $(op read op://zoo-shared-platform/env/DATABASE_URI) -tA -c "SELECT 1 FROM vista.contracts WHERE client = '${CLIENT_UPPER}' AND contract = '${CONTRACT_UPPER}'" | grep -q 1; then
+    echo "Creating contract ${CLIENT_UPPER}:${CONTRACT_UPPER}..."
+    yes y | "${SCRIPT_DIR}/add-contract.bash" --client "${CLIENT_UPPER}" --contract "${CONTRACT_UPPER}"
 fi
 
 # Construct the charge code using already uppercase values

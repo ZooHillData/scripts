@@ -9,7 +9,7 @@ NC=$'\e[0m' # No Color
 
 # Function to show usage
 show_usage() {
-    echo "Usage: close-code [options]"
+    echo "Usage: close-codes [options]"
     echo ""
     echo "Sets the closed_date to today's date for matching charge codes"
     echo ""
@@ -20,8 +20,8 @@ show_usage() {
     echo "  --help, -h         Show this help message"
     echo ""
     echo "Example:"
-    echo "  close-code --code 'ACME:.*'          # Close all ACME codes"
-    echo "  close-code --code 'ACME:CT123:.*'    # Close all codes for contract CT123"
+    echo "  close-codes --code 'ACME:.*'          # Close all ACME codes"
+    echo "  close-codes --code 'ACME:CT123:.*'    # Close all codes for contract CT123"
 }
 
 # Parse arguments

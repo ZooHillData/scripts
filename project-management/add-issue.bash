@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Get the directory where this script is located
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+REPO_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
+
 # Default values
 ORG="zoohilldata"
 DESCRIPTION=""
@@ -156,7 +160,7 @@ if [[ -n "$ISSUE_URL" ]]; then
     if [[ -n "$CLIENT" ]]; then
         echo
         echo "Creating charge code..."
-        CMD="./vista/add-code.bash --client '$CLIENT' --contract '$CONTRACT' --gh-url '$ISSUE_URL'"
+        CMD="${REPO_ROOT}/vista/add-code.bash --client '$CLIENT' --contract '$CONTRACT' --gh-url '$ISSUE_URL'"
         
         # Add optional arguments if they were provided
         if [[ "$PROJECT" != "-" ]]; then
