@@ -1,0 +1,9 @@
+{
+  "labels": [
+    {
+      "name": "prio",
+      "description": "Critical bugs that are preventing an app from working as expected. Use sparingly.",
+      "color": "B60205"
+    }
+  ]
+}

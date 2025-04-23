@@ -5,11 +5,13 @@ This repository contains a collection of shell scripts and a management system t
 ## Quick Start
 
 1. Install the scripts (from the root of this repository):
+
    ```bash
    ./add-to-rc.bash
    ```
 
 2. Source your shell configuration:
+
    ```bash
    source ~/.zshrc  # or restart your terminal
    ```
@@ -24,6 +26,7 @@ This repository contains a collection of shell scripts and a management system t
 ### Installation (`add-to-rc.bash`)
 
 The `add-to-rc.bash` script:
+
 - Finds all `.bash` files in the repository (top level and one directory deep)
 - Creates aliases for each script in your shell configuration file
 - Uses the script's basename as the alias (e.g., `deployment/script.bash` becomes `script`)
@@ -35,6 +38,7 @@ The `add-to-rc.bash` script:
 ### List available scripts (`get-scripts`)
 
 The `get-scripts` command shows all available scripts with their installation status:
+
 - Groups scripts by directory
 - Shows installation status with `[installed]` or `[uninstalled]`
 - Options:
@@ -45,6 +49,7 @@ The `get-scripts` command shows all available scripts with their installation st
 ## Script Organization
 
 Scripts are organized in the repository with the following assumptions:
+
 - Scripts are either at the root level or one directory deep
 - Each script's alias is based on its filename (without the `.bash` extension)
 - Scripts in subdirectories are grouped by their directory name
@@ -84,7 +89,7 @@ env-to-1p --vault <vault_name> --item <item_id> [--env-file <path>]
 
 # Example:
 env-to-1p --vault Development --item my-project-env --env-file .env.local
-``` 
+```
 
 #### 1p-to-netlify
 
@@ -218,6 +223,72 @@ add-issue --repo scripts --title "Project Setup" --description \
 # - Press Ctrl+D when done
 ```
 
+#### Repository Configuration
+
+The `standard-repo-config.json` file defines standard settings for repository management. Currently, it includes:
+
+- Standard label definitions with descriptions and colors
+- (More configuration options will be added as repository standardization evolves)
+
+#### add-standard-labels
+
+```bash
+# Add or update standard labels in a GitHub repository
+add-standard-labels --repo REPO [--org ORG] [--execute]
+
+# Required arguments:
+# --repo         : Repository name
+
+# Optional arguments:
+# --org          : Organization name (default: ZooHillData)
+# --execute      : Actually create/update the labels (default: dry-run)
+
+# Examples:
+# Preview label changes
+add-standard-labels --repo my-repo
+
+# Apply label changes
+add-standard-labels --repo my-repo --execute
+
+# Apply to different organization
+add-standard-labels --repo my-repo --org MyOrg --execute
+
+# Notes:
+# - Labels are defined in standard-repo-config.json
+# - Existing labels with same names will be updated
+# - Uses GitHub CLI (gh) for authentication
+# - Requires repository admin access
+```
+
+#### delete-labels
+
+```bash
+# Delete GitHub repository labels that match a pattern
+delete-labels --repo REPO --pattern PATTERN [--org ORG] [--execute]
+
+# Required arguments:
+# --repo         : Repository name
+# --pattern      : Regular expression pattern for labels to keep
+
+# Optional arguments:
+# --org          : Organization name (default: ZooHillData)
+# --execute      : Actually delete the labels (default: dry-run)
+
+# Examples:
+# Preview label deletions
+delete-labels --repo my-repo --pattern '^(bug|feature|enhancement)$'
+
+# Execute label deletions
+delete-labels --repo my-repo --pattern '^(bug|feature|enhancement)$' --execute
+
+# Notes:
+# - Pattern is a regular expression that matches labels to KEEP
+# - All labels NOT matching the pattern will be deleted
+# - Uses GitHub CLI (gh) for authentication
+# - Requires repository admin access
+# - Use with caution as deletion cannot be undone
+```
+
 ### Vista
 
 Scripts for managing Vista charge codes and contracts.
@@ -282,6 +353,7 @@ close-codes --code CHARGE_CODE
 ```
 
 Example:
+
 ```bash
 close-codes --code "ACM:CT123:PRJ1:ITEM1"
 ```
