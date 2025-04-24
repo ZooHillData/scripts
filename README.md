@@ -34,6 +34,8 @@ The `add-to-rc.bash` script:
   ```bash
   ./add-to-rc.bash ~/.bashrc
   ```
+- Creates a managed section in your RC file with clear begin/end markers
+- Preserves existing aliases and warns about duplicates
 
 ### List available scripts (`get-scripts`)
 
@@ -53,61 +55,57 @@ Scripts are organized in the repository with the following assumptions:
 - Scripts are either at the root level or one directory deep
 - Each script's alias is based on its filename (without the `.bash` extension)
 - Scripts in subdirectories are grouped by their directory name
+- Special scripts like `add-to-rc.bash` are excluded from alias creation
 
-## Example Usage
-
-### Script Management
-
-```bash
-# Install all scripts
-./add-to-rc.bash
-
-# List installed scripts
-get-scripts
-
-# List all scripts including uninstalled ones
-get-scripts --include-uninstalled
-
-# List scripts without paths
-get-scripts --no-paths
-```
-
-## Scripts
+## Available Scripts
 
 ### Deployment
 
 #### env-to-1p
 
+Syncs environment variables from a .env file to a 1Password item.
+
 ```bash
-# Use env-to-1p to create a 1Password item from a .env file
-env-to-1p --vault <vault_name> --item <item_id> [--env-file <path>]
+env-to-1p --vault <vault_name> --item <item_id> [--env-file <path>] [--remove]
 
 # Required arguments:
-# --vault     : Name of the 1Password vault to store the item in
-# --item      : ID/name of the item to create/update
-# --env-file  : Path to the .env file (defaults to .env)
+--vault     : Name of the 1Password vault to store the item in
+--item      : ID/name of the item to create/update
+
+# Optional arguments:
+--env-file  : Path to the .env file (defaults to .env)
+--remove    : Automatically remove keys that are not in the env file
 
 # Example:
 env-to-1p --vault Development --item my-project-env --env-file .env.local
 ```
 
+Features:
+
+- Creates vault if it doesn't exist (with confirmation)
+- Creates new item if it doesn't exist
+- Shows detailed diff of changes before applying
+- Supports removing obsolete keys
+- Preserves existing values for unchanged keys
+
 #### 1p-to-netlify
 
+Syncs environment variables between 1Password and Netlify sites.
+
 ```bash
-# Sync environment variables between 1Password and Netlify
 1p-to-netlify --vault <vault_name> --item <item_id> --site-name <netlify_site_name> [--to <netlify|1p>] [--remove]
 
 # Required arguments:
-# --vault     : Name of the 1Password vault
-# --item      : ID of the item in the vault
-# --site-name : Netlify site name to link to
+--vault     : Name of the 1Password vault
+--item      : ID of the item in the vault
+--site-name : Netlify site name to link to
 
 # Optional arguments:
-# --to        : Target system to sync to (netlify or 1p, default: netlify)
-# --remove    : Automatically remove keys that don't exist in the source
+--to        : Target system to sync to (netlify or 1p, default: netlify)
+--remove    : Automatically remove keys that don't exist in the source
 
 # Examples:
-# Sync from 1Password to Netlify
+# Sync from 1Password to Netlify (default)
 1p-to-netlify --vault Development --item prod-env --site-name my-site
 
 # Sync from Netlify to 1Password
@@ -117,19 +115,29 @@ env-to-1p --vault Development --item my-project-env --env-file .env.local
 1p-to-netlify --vault Development --item prod-env --site-name my-site --remove
 ```
 
+Features:
+
+- Bidirectional sync between 1Password and Netlify
+- Automatic site linking and unlinking
+- Preserves previous site link after operation
+- Shows detailed diff of changes before applying
+- Supports removing obsolete keys
+- Handles vault creation if needed
+
 ### Netlify
 
 #### get-sites
 
+Lists Netlify sites with flexible filtering and formatting options.
+
 ```bash
-# List Netlify sites with flexible filtering and formatting
 get-sites [options]
 
 # Options:
-# --name PATTERN    : Regex pattern to filter site names
-# --url PATTERN     : Regex pattern to filter site URLs
-# --fields LIST     : Comma-separated list of fields to display (default: name,id,url)
-# --format TYPE     : Output format: 'json' or 'table' (default: json)
+--name PATTERN    : Regex pattern to filter site names
+--url PATTERN     : Regex pattern to filter site URLs
+--fields LIST     : Comma-separated list of fields to display (default: name,id,url)
+--format TYPE     : Output format: 'json' or 'table' (default: json)
 
 # Examples:
 get-sites --name 'prod' --fields 'name,url'           # Filter prod sites, show name and URL
@@ -137,14 +145,14 @@ get-sites --url 'netlify.app' --format table          # Filter by URL, show as t
 get-sites --fields 'name,id,url,build_settings.repo'  # Custom fields
 ```
 
-## Patterns
+## Common Patterns
 
 ### Push Env from 1Password to Netlify (and build)
 
 ```bash
-VAULT=wgb
-ITEM=env
-URL=wgb.cpa
+VAULT=Development
+ITEM=prod-env
+URL=myapp.netlify.app
 
 site_name=$(get-sites --url $URL --format json | jq -r '.name')
 netlify link --name $site_name
@@ -155,14 +163,13 @@ netlify build --trigger --prod
 ### Pull Env from Netlify to 1Password
 
 ```bash
-VAULT=wgb
-ITEM=env
-URL=wgb.cpa
+VAULT=Development
+ITEM=prod-env
+URL=myapp.netlify.app
 
 site_name=$(get-sites --url $URL --format json | jq -r '.name')
 netlify link --name $site_name
 1p-to-netlify --vault $VAULT --item $ITEM --site-name $site_name --to 1p
-
 ```
 
 ### Push Env from 1Password to Netlify (and build)

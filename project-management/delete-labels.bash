@@ -5,6 +5,7 @@ PATTERN=""
 DRY_RUN=true
 ORG="ZooHillData"  # Default organization
 REPO=""
+DELETE_ALL=false
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -12,6 +13,10 @@ while [[ $# -gt 0 ]]; do
         --pattern)
             PATTERN="$2"
             shift 2
+            ;;
+        --all)
+            DELETE_ALL=true
+            shift
             ;;
         --execute)
             DRY_RUN=false
@@ -26,12 +31,13 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
         *)
-            echo "Usage: $0 --repo REPO --pattern <regex_pattern> [--org ORG] [--execute]"
+            echo "Usage: $0 --repo REPO (--pattern <regex_pattern> | --all) [--org ORG] [--execute]"
             echo "Example: $0 --repo my-repo --pattern '^(bug|feature|enhancement)$'"
             echo ""
             echo "Options:"
             echo "  --repo REPO       Repository name (required)"
             echo "  --pattern <regex> Regular expression pattern for labels to keep"
+            echo "  --all            Delete all labels"
             echo "  --org ORG         Organization name (default: ZooHillData)"
             echo "  --execute         Actually perform the deletions (default: dry-run)"
             echo ""
@@ -42,8 +48,13 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Validate required arguments
-if [ -z "$PATTERN" ]; then
-    echo "Error: --pattern argument is required"
+if [ -z "$PATTERN" ] && [ "$DELETE_ALL" = false ]; then
+    echo "Error: either --pattern or --all argument must be supplied"
+    exit 1
+fi
+
+if [ -n "$PATTERN" ] && [ "$DELETE_ALL" = true ]; then
+    echo "Error: cannot use both --pattern and --all together"
     exit 1
 fi
 
@@ -81,7 +92,7 @@ echo "Fetching labels..."
 
 # Get all labels and process them
 gh label list --repo "$ORG/$REPO" --json name | jq -r '.[] | .name' | while read -r label; do
-    if ! echo "$label" | grep -qE "$PATTERN"; then
+    if [ "$DELETE_ALL" = true ] || ! echo "$label" | grep -qE "$PATTERN"; then
         if [ "$DRY_RUN" = true ]; then
             echo "Would delete label: $label"
         else
