@@ -66,7 +66,7 @@ if ! command -v op &> /dev/null; then
 fi
 
 # Get matching codes
-MATCHING_CODES=$(psql $(op read op://zoo-shared-platform/env/DATABASE_URI) -tA -c "SELECT charge_code FROM vista.charge_codes WHERE charge_code ~ '${CODE_PATTERN_UPPER}' ORDER BY charge_code")
+MATCHING_CODES=$(psql $(op read op://zoo-shared-platform/prod/SUPABASE_DB_URI) -tA -c "SELECT charge_code FROM vista.charge_codes WHERE charge_code ~ '${CODE_PATTERN_UPPER}' ORDER BY charge_code")
 
 if [ -z "$MATCHING_CODES" ]; then
     echo "No charge codes found matching pattern '${CODE_PATTERN}'"
@@ -95,7 +95,7 @@ echo
 read -p "Would you like to proceed with deleting these codes? (y/n) " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    if ! psql $(op read op://zoo-shared-platform/env/DATABASE_URI) -c "${SQL_COMMAND}"; then
+    if ! psql $(op read op://zoo-shared-platform/prod/SUPABASE_DB_URI) -c "${SQL_COMMAND}"; then
         echo "Error: Failed to delete charge codes"
         exit 1
     fi

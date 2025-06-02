@@ -4,6 +4,26 @@
       "name": "prio",
       "description": "Critical bugs that are preventing an app from working as expected. Use sparingly.",
       "color": "B60205"
+    },
+    {
+      "name": "needs-prio",
+      "description": "Needs review for prioritization",
+      "color": "00B4D8"
+    },
+    {
+      "name": "support",
+      "description": "This is a support item / bug fix that will be charged to the allocated support hours",
+      "color": "FFEE99"
+    },
+    {
+      "name": "design",
+      "description": "Design work done by our UX designers",
+      "color": "CECECF"
+    },
+    {
+      "name": "organizer",
+      "description": "Parent issue meant to organize other issues into a single issue",
+      "color": "CECECF"
     }
   ]
 }

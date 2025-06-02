@@ -4,3 +4,6 @@
 .cursor/mcp.json
 # Local Netlify folder
 .netlify
+
+# Environment files
+.env.local

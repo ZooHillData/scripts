@@ -82,7 +82,7 @@ echo
 read -p "Would you like to proceed? (y/n) " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    if ! psql $(op read op://zoo-shared-platform/env/DATABASE_URI) -c "${SQL_COMMAND}"; then
+    if ! psql $(op read op://zoo-shared-platform/prod/SUPABASE_DB_URI) -c "${SQL_COMMAND}"; then
         echo "Error: Failed to insert contract"
         exit 1
     fi

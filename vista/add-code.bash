@@ -106,7 +106,7 @@ if ! command -v op &> /dev/null; then
 fi
 
 # Create contract if it doesn't exist
-if ! psql $(op read op://zoo-shared-platform/env/DATABASE_URI) -tA -c "SELECT 1 FROM vista.contracts WHERE client = '${CLIENT_UPPER}' AND contract = '${CONTRACT_UPPER}'" | grep -q 1; then
+if ! psql $(op read op://zoo-shared-platform/prod/SUPABASE_DB_URI) -tA -c "SELECT 1 FROM vista.contracts WHERE client = '${CLIENT_UPPER}' AND contract = '${CONTRACT_UPPER}'" | grep -q 1; then
     echo "Creating contract ${CLIENT_UPPER}:${CONTRACT_UPPER}..."
     yes y | "${SCRIPT_DIR}/add-contract.bash" --client "${CLIENT_UPPER}" --contract "${CONTRACT_UPPER}"
 fi
@@ -126,7 +126,7 @@ else
 fi
 
 echo "Executing SQL: ${SQL_COMMAND}"
-if ! psql $(op read op://zoo-shared-platform/env/DATABASE_URI) -c "${SQL_COMMAND}"; then
+if ! psql $(op read op://zoo-shared-platform/prod/SUPABASE_DB_URI) -c "${SQL_COMMAND}"; then
     echo "Error: Failed to insert charge code"
     exit 1
 fi

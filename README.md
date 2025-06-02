@@ -390,3 +390,39 @@ delete-codes --code 'ACME:CT123:PRJ1:.*'
 # - Use with caution as deletion cannot be undone
 # - Uses PostgreSQL regex syntax
 ```
+
+#### op-nomask
+
+```bash
+op-nomask [options] [-- command...]
+
+# Options:
+--prod           : Use production environment file (.env.local)
+--env <file>     : Use a custom environment file
+                  This overrides --prod if both are specified
+-h, --help       : Show this help message
+
+If no options are provided, uses .env.example
+
+# Examples:
+# Simple commands:
+op-nomask                                     # Uses .env.example
+op-nomask --prod                             # Uses .env.local
+op-nomask --env .env.staging                 # Uses .env.staging
+
+# With command arguments:
+op-nomask -- printenv                        # Basic command
+op-nomask --prod -- printenv                 # With prod env
+op-nomask --env .env.test -- printenv        # With custom env
+
+# Complex commands:
+op-nomask --prod -- npx supabase link -p "value"  # Command with flags
+op-nomask -- "command with spaces" arg1 arg2      # Command with spaces
+
+# Real-world examples:
+# Link Supabase project using DB connection from 1Password
+op-nomask --prod -- npx supabase@latest link -p "$(op read op://vault/item/field)"
+
+# Run a Node.js script with environment variables
+op-nomask --prod -- node scripts/deploy.js --environment production
+```

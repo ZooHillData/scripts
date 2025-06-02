@@ -2,12 +2,13 @@
 
 # Function to display usage information
 usage() {
-    echo "Usage: $0 --vault <vault_name> --item <item_id> --site-name <netlify_site_name> [--to <netlify|1p>] [--remove]"
+    echo "Usage: $0 --vault <vault_name> --item <item_id> --site-name <netlify_site_name> [--to <netlify|1p>] [--remove] [--context <context>]"
     echo "  --vault     : Name of the 1Password vault"
     echo "  --item      : ID of the item in the vault"
     echo "  --site-name : Netlify site name to link to"
     echo "  --to        : Target system to sync to (netlify or 1p, default: netlify)"
     echo "  --remove    : Automatically remove keys that don't exist in the source"
+    echo "  --context   : Netlify context to set variables for (e.g., production, branch:staging)"
     exit 1
 }
 
@@ -17,6 +18,7 @@ ITEM=""
 SITE_NAME=""
 TARGET="netlify"
 AUTO_REMOVE=false
+CONTEXT=""
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -39,6 +41,10 @@ while [[ $# -gt 0 ]]; do
         --remove)
             AUTO_REMOVE=true
             shift
+            ;;
+        --context)
+            CONTEXT="$2"
+            shift 2
             ;;
         *)
             echo "Unknown option: $1"
@@ -123,7 +129,11 @@ get_1p_env() {
 
 # Function to get environment variables from Netlify
 get_netlify_env() {
-    netlify env:list --plain
+    if [ -n "$CONTEXT" ]; then
+        netlify env:list --plain --context "$CONTEXT"
+    else
+        netlify env:list --plain
+    fi
 }
 
 # Function to analyze and apply changes
@@ -234,7 +244,11 @@ analyze_and_apply_changes() {
             for key in $to_remove; do
                 if [ -n "$key" ]; then
                     echo "Removing $key from Netlify..."
-                    netlify env:unset "$key"
+                    if [ -n "$CONTEXT" ]; then
+                        netlify env:unset "$key" --context "$CONTEXT"
+                    else
+                        netlify env:unset "$key"
+                    fi
                 fi
             done
             
@@ -243,7 +257,11 @@ analyze_and_apply_changes() {
                 if [ -n "$key" ]; then
                     value=$(echo "$source_output" | grep "^$key=" | cut -d'=' -f2-)
                     echo "Setting $key in Netlify..."
-                    netlify env:set "$key" "$value"
+                    if [ -n "$CONTEXT" ]; then
+                        netlify env:set "$key" "$value" --context "$CONTEXT"
+                    else
+                        netlify env:set "$key" "$value"
+                    fi
                 fi
             done
         fi

@@ -158,7 +158,7 @@ while IFS=$'\t' read -r number title url; do
     
     # Find and close associated charge codes
     echo "Looking for charge codes with GitHub URL: ${EXPECTED_URL}"
-    CHARGE_CODES=$(psql $(op read op://zoo-shared-platform/env/DATABASE_URI) -tA -c "SELECT charge_code FROM vista.charge_codes WHERE lower(gh_link) = lower('${EXPECTED_URL}') AND closed_date IS NULL")
+    CHARGE_CODES=$(psql $(op read op://zoo-shared-platform/prod/SUPABASE_DB_URI) -tA -c "SELECT charge_code FROM vista.charge_codes WHERE lower(gh_link) = lower('${EXPECTED_URL}') AND closed_date IS NULL")
     
     if [ -n "$CHARGE_CODES" ]; then
         echo "Found associated charge codes:"
